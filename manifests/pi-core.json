@@ -266,7 +266,6 @@
       "master-agreement-generator": "legal docs niche",
       "messages-ops": "messaging ops skill",
       "nanoclaw-repl": "ECC product-specific REPL",
-      "nasiko-control-plane": "venture-specific nasiko-*",
       "netmiko-ssh-automation": "network-device ops niche; SSH at runtime",
       "network-bgp-diagnostics": "network ops niche domain",
       "network-config-validation": "network ops niche domain",

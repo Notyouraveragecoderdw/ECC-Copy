@@ -3,8 +3,7 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 const { listAvailableLanguages } = require('./lib/install-executor');
-const { getComputeSponsorCopy } = require('./lib/compute-sponsor');
-const { createSafeItoInvocationEnvironment, getInvocationCommand } = require('./lib/ito-environment');
+const { getInvocationCommand } = require('./lib/ito-environment');
 
 const COMMANDS = {
   setup: {
@@ -38,14 +37,6 @@ const COMMANDS = {
   'control-pane': {
     script: 'control-pane.js',
     description: 'Run the local ECC2 operator control pane',
-  },
-  ito: {
-    script: 'ito.js',
-    description: 'Invoke the separately installed canonical Itô compute CLI',
-  },
-  nasiko: {
-    script: 'nasiko.js',
-    description: 'Install or inspect the optional pinned Nasiko CLI lifecycle bridge',
   },
   memory: {
     script: 'memory.js',
@@ -118,8 +109,6 @@ const PRIMARY_COMMANDS = [
   'consult',
   'profile',
   'control-pane',
-  'ito',
-  'nasiko',
   'memory',
   'list-installed',
   'doctor',
@@ -156,8 +145,6 @@ Compatibility:
 Global Flags:
   --dry-run          Preview actions without executing (sets ECC_DRY_RUN=1)
 
-Compute:
-  ${getComputeSponsorCopy()}
 
 Examples:
   ecc setup
@@ -174,15 +161,6 @@ Examples:
   ecc consult "security reviews"
   ecc profile preview lean@1 --target codex --selection auto --json
   ecc control-pane --port 8765
-  ecc ito login [--no-browser]
-  ecc ito logout
-  ecc ito auth
-  ecc ito find --gpu h200 --count 8 --nodes 1 --gpus-per-node 8 --days 30 --storage-tb 1 --start-window 2099-08-15 --max-rate 3.00 --form-factor bare_metal --contract-type reservation --fabric infiniband --region us-east-1
-  ecc ito status --json
-  ecc nasiko status --json
-  ecc nasiko install --version v0.1.0 --dry-run --json
-  ecc nasiko install --version v0.1.0 --yes --json
-  ecc ito evals --cluster clu_prod_example --live-sixtytwo --nodes gpu-01,gpu-02 --config-dir /absolute/path/to/qualification-config
   ecc memory init
   ecc memory handoff --from codex --target claude --title "Continue migration" --stdin
   ecc memory search "migration blockers" --target-harness hermes
@@ -272,21 +250,14 @@ function runCommand(commandName, args) {
   if (!command) {
     throw new Error(`Unknown command: ${commandName}`);
   }
-  const isItoLogin = commandName === 'ito' && getInvocationCommand(args) === 'login';
   const isProfileStart = commandName === 'profile' && getInvocationCommand(args) === 'start';
   const result = spawnSync(
     process.execPath,
     [path.join(__dirname, command.script), ...args],
     {
       cwd: process.cwd(),
-      env: commandName === 'ito'
-        ? {
-          ...createSafeItoInvocationEnvironment(process.env, args, {
-            includeControls: true,
-          }),
-        }
-        : process.env,
-      stdio: isItoLogin || isProfileStart || commandName === 'setup' || commandName === 'install'
+      env: process.env,
+      stdio: isProfileStart || commandName === 'setup' || commandName === 'install'
         ? 'inherit'
         : commandName === 'memory' || commandName === 'profile'
           ? ['inherit', 'pipe', 'pipe']

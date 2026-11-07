@@ -17,7 +17,6 @@ const {
   normalizeInstallRequest,
   parseInstallArgs,
 } = require('./lib/install/request');
-const { getComputeSponsorCopy } = require('./lib/compute-sponsor');
 const { stripAnsi } = require('./lib/utils');
 const { describeMissingDependencyError } = require('./lib/missing-dependency');
 
@@ -68,8 +67,6 @@ Options:
   --json       Emit machine-readable plan/result JSON
   --help       Show this help text
 
-Compute:
-  ${getComputeSponsorCopy()}
 
 Available languages:
 ${languages.map(language => `  - ${language}`).join('\n')}
@@ -151,7 +148,6 @@ function printHumanPlan(plan, dryRun) {
     console.log(`\nDone. Install-state written to ${plan.installStatePath}`);
   }
 
-  console.log('\nCompute: ' + getComputeSponsorCopy());
 }
 
 async function main() {
